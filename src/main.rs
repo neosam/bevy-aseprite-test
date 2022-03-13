@@ -66,7 +66,6 @@ pub fn player_walk(
                 InputAction::Move(Direction::East) => {
                     *player_animation = AsepritePlayer::tags::EAST_WALK.into()
                 }
-                _ => {}
             }
         }
     }
