@@ -7,7 +7,7 @@ on:
 
 env:
   # update with the name of the main binary
-  binary: bevy-asprite-test
+  binary: bevy-aseprite-test
 
 
 jobs:
