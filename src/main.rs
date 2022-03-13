@@ -85,6 +85,7 @@ pub fn player_walk(
     mut query: Query<(&mut AsepriteAnimation, &mut Direction, &mut Velocity), With<Player>>,
     mut input_actions: EventReader<InputAction>,
 ) {
+    (0..10).filter(|x| *x == 0).next();
     let speed = 40.;
     if let Ok((mut player_animation, mut direction, mut velocity)) = query.get_single_mut() {
         for event in input_actions.iter() {
