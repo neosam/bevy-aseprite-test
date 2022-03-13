@@ -1,0 +1,4 @@
+/target
+doc/demo/assets
+doc/demo/bevy-aseprite-test.js
+doc/demo/bevy-aseprite-test_bg.wasm
