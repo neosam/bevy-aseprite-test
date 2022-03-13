@@ -2,6 +2,8 @@
 edition = "2021"
 name = "bevy-aseprite-test"
 version = "0.1.0"
+
 [dependencies]
 bevy = "0.6"
 bevy_aseprite = "0.6"
+heron = {version = "2.2", features = ["2d"] }

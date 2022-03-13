@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use bevy_aseprite::{aseprite, AsepriteAnimation, AsepriteBundle, AsepritePlugin};
+use heron::prelude::*;
 
 mod random;
 use random::Random;
@@ -53,7 +54,9 @@ pub fn startup(mut commands: Commands) {
             ..Default::default()
         })
         .insert(Player)
-        .insert(Direction::South);
+        .insert(Direction::South)
+        .insert(RigidBody::Dynamic)
+        .insert(Velocity::from_linear(Vec3::new(0., 0., 0.)));
 }
 
 pub fn input(mut input_actions: EventWriter<InputAction>, keys: Res<Input<KeyCode>>) {
@@ -79,27 +82,32 @@ pub fn input(mut input_actions: EventWriter<InputAction>, keys: Res<Input<KeyCod
 }
 
 pub fn player_walk(
-    mut query: Query<(&mut AsepriteAnimation, &mut Direction), With<Player>>,
+    mut query: Query<(&mut AsepriteAnimation, &mut Direction, &mut Velocity), With<Player>>,
     mut input_actions: EventReader<InputAction>,
 ) {
-    if let Ok((mut player_animation, mut direction)) = query.get_single_mut() {
+    let speed = 40.;
+    if let Ok((mut player_animation, mut direction, mut velocity)) = query.get_single_mut() {
         for event in input_actions.iter() {
             match *event {
                 InputAction::Move(Direction::North) => {
                     *player_animation = AsepritePlayer::tags::NORTH_WALK.into();
                     *direction = Direction::North;
+                    velocity.linear = Vec3::new(0., speed, 0.);
                 }
                 InputAction::Move(Direction::South) => {
                     *player_animation = AsepritePlayer::tags::SOUTH_WALK.into();
                     *direction = Direction::South;
+                    velocity.linear = Vec3::new(0., -speed, 0.);
                 }
                 InputAction::Move(Direction::West) => {
                     *player_animation = AsepritePlayer::tags::WEST_WALK.into();
                     *direction = Direction::West;
+                    velocity.linear = Vec3::new(-speed, 0., 0.);
                 }
                 InputAction::Move(Direction::East) => {
                     *player_animation = AsepritePlayer::tags::EAST_WALK.into();
                     *direction = Direction::East;
+                    velocity.linear = Vec3::new(speed, 0., 0.);
                 }
                 InputAction::StopMovement => {
                     *player_animation = match *direction {
@@ -107,7 +115,8 @@ pub fn player_walk(
                         Direction::South => AsepritePlayer::tags::SOUTH_IDLE.into(),
                         Direction::West => AsepritePlayer::tags::WEST_IDLE.into(),
                         Direction::East => AsepritePlayer::tags::EAST_IDLE.into(),
-                    }
+                    };
+                    velocity.linear = Vec3::new(0., 0., 0.);
                 }
             }
         }
@@ -118,6 +127,7 @@ fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .add_plugin(AsepritePlugin)
+        .add_plugin(PhysicsPlugin::default())
         .add_event::<InputAction>()
         .add_startup_system(startup)
         .add_system(input)
