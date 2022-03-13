@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_aseprite::{aseprite, AsepriteBundle, AsepritePlugin, AsepriteAnimation};
+use bevy_aseprite::{aseprite, AsepriteAnimation, AsepriteBundle, AsepritePlugin};
 
 aseprite!(pub AsepritePlayer, "assets/sprites/Sprite-0002.aseprite");
 
@@ -7,32 +7,32 @@ aseprite!(pub AsepritePlayer, "assets/sprites/Sprite-0002.aseprite");
 pub struct Player;
 
 pub enum Direction {
-    North, South, East, West,
+    North,
+    South,
+    East,
+    West,
 }
 pub enum InputAction {
     Move(Direction),
 }
 
-pub fn startup(
-    mut commands: Commands,
-) {
+pub fn startup(mut commands: Commands) {
     commands.spawn_bundle(OrthographicCameraBundle::new_2d());
-    commands.spawn_bundle(AsepriteBundle {
-        aseprite: AsepritePlayer::sprite(),
-        animation: AsepritePlayer::tags::SOUTH_WALK.into(),
-        transform: Transform {
-            scale: Vec3::splat(4.),
-            translation: Vec3::new(0., 0., 0.),
+    commands
+        .spawn_bundle(AsepriteBundle {
+            aseprite: AsepritePlayer::sprite(),
+            animation: AsepritePlayer::tags::SOUTH_WALK.into(),
+            transform: Transform {
+                scale: Vec3::splat(4.),
+                translation: Vec3::new(0., 0., 0.),
+                ..Default::default()
+            },
             ..Default::default()
-        },
-        ..Default::default()
-    }).insert(Player);
+        })
+        .insert(Player);
 }
 
-pub fn input(
-    mut input_actions: EventWriter<InputAction>,
-    keys: Res<Input<KeyCode>>,
-) {
+pub fn input(mut input_actions: EventWriter<InputAction>, keys: Res<Input<KeyCode>>) {
     if keys.just_pressed(KeyCode::W) {
         input_actions.send(InputAction::Move(Direction::North));
     }
@@ -56,16 +56,16 @@ pub fn player_walk(
             match *event {
                 InputAction::Move(Direction::North) => {
                     *player_animation = AsepritePlayer::tags::NORTH_WALK.into()
-                },
+                }
                 InputAction::Move(Direction::South) => {
                     *player_animation = AsepritePlayer::tags::SOUTH_WALK.into()
-                },
+                }
                 InputAction::Move(Direction::West) => {
                     *player_animation = AsepritePlayer::tags::WEST_WALK.into()
-                },
+                }
                 InputAction::Move(Direction::East) => {
                     *player_animation = AsepritePlayer::tags::EAST_WALK.into()
-                },
+                }
                 _ => {}
             }
         }
