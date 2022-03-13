@@ -1,7 +1,11 @@
 use bevy::prelude::*;
 use bevy_aseprite::{aseprite, AsepriteAnimation, AsepriteBundle, AsepritePlugin};
 
+mod random;
+use random::Random;
+
 aseprite!(pub AsepritePlayer, "assets/sprites/Sprite-0002.aseprite");
+aseprite!(pub AsepriteTerrain, "assets/sprites/terrain.aseprite");
 
 #[derive(Component)]
 pub struct Player;
@@ -17,14 +21,31 @@ pub enum InputAction {
 }
 
 pub fn startup(mut commands: Commands) {
-    commands.spawn_bundle(OrthographicCameraBundle::new_2d());
+    let mut camera = OrthographicCameraBundle::new_2d();
+    camera.orthographic_projection.scale = 0.5;
+    commands.spawn_bundle(camera);
+
+    let mut random = Random::new(0);
+
+    commands.spawn_batch((-20..20).flat_map(|y| (-20..20).map(move |x| (x, y))).map(
+        move |(x, y)| AsepriteBundle {
+            aseprite: AsepriteTerrain::sprite(),
+            animation: if random.chance(0.05) {
+                AsepriteTerrain::tags::GRASS2.into()
+            } else {
+                AsepriteTerrain::tags::GRASS.into()
+            },
+            transform: Transform::from_xyz((x as f32) * 16., (y as f32) * 16., 0.),
+            ..Default::default()
+        },
+    ));
+
     commands
         .spawn_bundle(AsepriteBundle {
             aseprite: AsepritePlayer::sprite(),
             animation: AsepritePlayer::tags::SOUTH_WALK.into(),
             transform: Transform {
-                scale: Vec3::splat(4.),
-                translation: Vec3::new(0., 0., 0.),
+                translation: Vec3::new(0., 0., 100.),
                 ..Default::default()
             },
             ..Default::default()
